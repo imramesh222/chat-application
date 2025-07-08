@@ -20,11 +20,11 @@ room_service = RoomService(room_repo)
 logger = loggerutil.get_logger(__name__)
 db = DataSource()
 
-@router.post("/", response_model=CreateRoomResponse, dependencies=[Depends(require_admin)])
-def create_room(request: CreateRoomRequest, current_user=Depends(require_admin)):
+@router.post("/", response_model=CreateRoomResponse)
+def create_room(request: CreateRoomRequest, current_user=Depends(get_current_user)):
     session = db.get_session()
     try:
-        return room_service.create_room(session, request=request)
+        return room_service.create_room(session, request=request, current_user=current_user)
     finally:
         db.close_session(session)
 
@@ -32,8 +32,7 @@ def create_room(request: CreateRoomRequest, current_user=Depends(require_admin))
 def list_rooms(skip: int = Query(0), limit: int = Query(10), current_user=Depends(get_current_user)):
     session = db.get_session()
     try:
-        # TODO: Implement list_rooms in RoomService
-        return room_service.list_rooms(session, skip=skip, limit=limit)
+        return room_service.list_rooms(session, current_user, skip=skip, limit=limit)
     finally:
         db.close_session(session)
 
@@ -41,25 +40,22 @@ def list_rooms(skip: int = Query(0), limit: int = Query(10), current_user=Depend
 def get_room(room_id: str, current_user=Depends(get_current_user)):
     session = db.get_session()
     try:
-        # TODO: Implement get_room in RoomService
-        return room_service.get_room(session, room_id=room_id)
+        return room_service.get_room(session, room_id, current_user)
     finally:
         db.close_session(session)
 
-@router.patch("/{room_id}", response_model=UpdateRoomResponse, dependencies=[Depends(require_admin)])
-def update_room(room_id: str, request: UpdateRoomRequest, current_user=Depends(require_admin)):
+@router.patch("/{room_id}", response_model=UpdateRoomResponse)
+def update_room(room_id: str, request: UpdateRoomRequest, current_user=Depends(get_current_user)):
     session = db.get_session()
     try:
-        # TODO: Implement update_room in RoomService
-        return room_service.update_room(session, room_id=room_id, request=request)
+        return room_service.update_room(session, room_id, request, current_user)
     finally:
         db.close_session(session)
 
-@router.delete("/{room_id}", response_model=DeleteRoomResponse, dependencies=[Depends(require_admin)])
-def delete_room(room_id: str, current_user=Depends(require_admin)):
+@router.delete("/{room_id}", response_model=DeleteRoomResponse)
+def delete_room(room_id: str, current_user=Depends(get_current_user)):
     session = db.get_session()
     try:
-        # TODO: Implement delete_room in RoomService
-        return room_service.delete_room(session, room_id=room_id)
+        return room_service.delete_room(session, room_id, current_user)
     finally:
         db.close_session(session)

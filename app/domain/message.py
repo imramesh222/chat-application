@@ -6,6 +6,8 @@ from pydantic import BaseModel
 class Message(BaseModel):
     id: Optional[str] = None
     content: str
-    user_id: str
-    room_id: str
-    username: Optional[str] = None  # If you want to include sender's username
+    user_id: Optional[str] = None
+    room_id: Optional[str] = None
+    full_name: Optional[str] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None

@@ -12,7 +12,7 @@ from app.utils import loggerutil
 from app.utils.hashing import Hash
 from app.utils.singleton import Singleton
 
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "secret@543")
+SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here")
 JWT_ALGORITHM = "HS256"
 JWT_ACCESS_TOKEN_EXPIRE_SECONDS = 7 * 24 * 60 * 60
 
@@ -45,7 +45,7 @@ class SessionStore:
 
 def _decode_jwt(token: str) -> Optional[Dict]:
     try:
-        return jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        return jwt.decode(token, SECRET_KEY, algorithms=[JWT_ALGORITHM])
     except jwt.ExpiredSignatureError:
         logger.error("Token has expired")
         return None
@@ -98,7 +98,7 @@ class AuthService(metaclass=Singleton):
         """Create a JWT access token for the user."""
         expire = datetime.now() + (expires_delta or timedelta(seconds=JWT_ACCESS_TOKEN_EXPIRE_SECONDS))
         to_encode = {"sub": email, "exp": expire}
-        token = jwt.encode(to_encode, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
+        token = jwt.encode(to_encode, SECRET_KEY, algorithm=JWT_ALGORITHM)
         self.session_store.add_session(email=email, token=token, expires=expire)
         return Session(
             access_token=token,
@@ -167,5 +167,5 @@ class AuthService(metaclass=Singleton):
         """Generate a JWT token for the given user ID."""
         expire = datetime.now() + (expires_delta or timedelta(seconds=JWT_ACCESS_TOKEN_EXPIRE_SECONDS))
         to_encode = {"sub": user_id, "exp": expire}
-        token = jwt.encode(to_encode, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
+        token = jwt.encode(to_encode, SECRET_KEY, algorithm=JWT_ALGORITHM)
         return token

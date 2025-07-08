@@ -10,7 +10,6 @@ class BaseResponse(BaseModel):
 
 class CreateMessageRequest(BaseModel):
     message: Message
-    user_id: str
 
 
 class CreateMessageResponse(BaseResponse):
