@@ -1,110 +1,115 @@
-# Chat Application API
+# Chat Application Backend
 
-A modern chat application backend built with **FastAPI**, **SQLAlchemy**, and **PostgreSQL**.  
-Database migrations are managed with **Liquibase**.
+A real-time chat backend built with **FastAPI**, **SQLAlchemy**, **PostgreSQL**, and **WebSockets**. Supports JWT authentication, user/room/message management, role-based access (global admin and per-room admin), and persistent chat history.
+
+---
 
 ## Features
 
-- User authentication (JWT-based)
-- User registration and profile management
-- Room creation (with per-room admin/owner)
-- Messaging within rooms
-- Role-based access (global admin, per-room admin)
-- RESTful API with interactive Swagger UI
+- **User Authentication**: JWT-based login and protected endpoints.
+- **User Management**: Signup, update, password change, and user listing.
+- **Room Management**: Create, update, delete, and list chat rooms. Room creator is the admin.
+- **Message Management**: Send and fetch messages in rooms. All messages are persisted in the database.
+- **WebSocket Chat**: Real-time messaging in rooms, protected by JWT.
+- **Role-Based Access**: Global admin and per-room admin logic for room operations.
+- **Swagger UI**: API docs and testing at `/docs`.
 
-## API Endpoints
+---
 
-### **Authentication**
-- `POST /auth/login` — User login, returns JWT token
-- `POST /auth/logout` — User logout
+## Setup Instructions
 
-### **Users**
-- `POST /user/signup` — Register a new user
-- `GET /user/users` — List all users (admin only)
-- `GET /user/{user_id}` — Get user by ID (admin only)
-- `PUT /user/update/{user_id}` — Update user info (admin only)
-- `POST /user/update_password` — Change own password (authenticated)
-
-### **Rooms**
-- `POST /room/` — Create a room (any authenticated user; creator becomes room admin)
-- `GET /room/rooms` — List all rooms (authenticated)
-- `GET /room/{room_id}` — Get room by ID (authenticated)
-- `PATCH /room/{room_id}` — Update room (room admin or global admin)
-- `DELETE /room/{room_id}` — Delete room (room admin or global admin)
-
-### **Messages**
-- `POST /message/rooms/{room_id}/messages` — Send a message in a room (authenticated)
-- `GET /message/rooms/{room_id}/messages` — List messages in a room (authenticated)
-
-## Business Logic Overview
-
-- **Authentication:**
-  - JWT-based. All protected endpoints require a valid token.
-  - Only admins can manage users globally.
-
-- **User Management:**
-  - Users can sign up and update their own password.
-  - Admins can view, update, and delete any user.
-
-- **Room Management:**
-  - Any authenticated user can create a room; they become the room's admin (owner).
-  - Only the room admin (or a global admin) can update or delete the room.
-  - All authenticated users can view rooms and join them.
-
-- **Messaging:**
-  - Authenticated users can send and view messages in rooms they have access to.
-  - Messages are linked to both the user and the room.
-
-## Getting Started
-
-### 1. Clone the repository
-
+### 1. Clone the Repository
 ```bash
 git clone <your-repo-url>
 cd chat-application
 ```
 
-### 2. Set up your environment
-
-- Create a `.env` file with your database and secret settings.
-- Install dependencies:
-
+### 2. Create and Activate Virtual Environment
 ```bash
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate
+```
+
+### 3. Install Dependencies
+```bash
 pip install -r requirements.txt
 ```
 
-### 3. Set up the database
+### 4. Configure Environment Variables
+Create a `.env` file in the project root:
+```
+SERVICE_PORT=8003
+SECRET_KEY=15d8f5f31c97b88aa6b303aa437b6e949afadc60b76ecfcbd085df680f4e353e
+DATABASE_URL=postgresql://postgres:ramesh@localhost:5432/chatapp
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USER=postgres
+DATABASE_NAME=chatapp
+DATABASE_PASSWORD=ramesh
+CHUNK_SIZE=512
+```
 
-- Configure your PostgreSQL connection in `.env` and `liquibase/liquibase.properties`.
-- Run migrations:
-
+### 5. Run Database Migrations
 ```bash
 cd liquibase
 liquibase update
+cd ..
 ```
 
-### 4. Start the application
-
+### 6. Start the Service
 ```bash
 ./start_service.sh
 ```
 
-### 5. Access the API
+---
 
-- Open [http://localhost:8002/docs](http://localhost:8002/docs) for Swagger UI.
+## API Usage
 
-## Project Structure
+### **Authentication**
+- `POST /auth/login` — Login, returns JWT token and user info.
+- `POST /auth/token` — Login, returns only session info.
+- Use the `access_token` from the response for all protected endpoints.
 
-- `app/` - Main FastAPI application code
-- `liquibase/` - Database migration scripts
-- `requirements.txt` - Python dependencies
+### **User Endpoints**
+- `POST /user/signup` — Register a new user.
+- `GET /user/users` — List users (admin only).
+- `PUT /user/update/{user_id}` — Update user info.
+- `POST /user/update_password` — Change password.
 
-## License
+### **Room Endpoints**
+- `POST /room/` — Create a room (authenticated user becomes admin).
+- `GET /room/rooms` — List rooms (admin sees all, user sees their own).
+- `GET /room/{room_id}` — Get room details.
+- `PATCH /room/{room_id}` — Update room (admin only).
+- `DELETE /room/{room_id}` — Delete room (admin only).
 
-MIT
+### **Message Endpoints**
+- `POST /message/rooms/{room_id}/messages` — Send message to a room.
+- `GET /message/rooms/{room_id}/messages` — List messages in a room.
+
+### **WebSocket Chat**
+- **Endpoint:** `ws://localhost:8003/ws/{room_id}?token=YOUR_JWT_TOKEN`
+- **How to use:**
+  1. Login and get a JWT token.
+  2. Connect to the WebSocket endpoint with the token as a query parameter.
+  3. Send plain text messages. All connected clients in the room receive the message.
+  4. All messages are saved to the `messages` table.
 
 ---
 
-**Happy chatting!**
+## Current Limitations
+- **No room membership management:** Any authenticated user can send messages to any room if they know the room ID. There is no way for a room admin to add/remove users from a room.
+- **No private/direct messaging:** All messages are public within a room.
+- **No message editing/deletion:** Once sent, messages cannot be edited or deleted.
+
+---
+
+## Development & Debugging
+- Use print/log statements in your WebSocket handler for debugging.
+- Check `service.log` and `logs/uvicorn.log` for errors.
+- Use pgAdmin or psql to inspect the database.
+
+---
+
+## License
+MIT
