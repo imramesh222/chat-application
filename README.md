@@ -39,13 +39,13 @@ pip install -r requirements.txt
 Create a `.env` file in the project root:
 ```
 SERVICE_PORT=8003
-SECRET_KEY=15d8f5f31c97b88aa6b303aa437b6e949afadc60b76ecfcbd085df680f4e353e
-DATABASE_URL=postgresql://postgres:ramesh@localhost:5432/chatapp
+SECRET_KEY=15d8f5f31c97b88........
+DATABASE_URL=postgresql://postgres:password@localhost:5432/your_database
 DATABASE_HOST=localhost
 DATABASE_PORT=5432
 DATABASE_USER=postgres
-DATABASE_NAME=chatapp
-DATABASE_PASSWORD=ramesh
+DATABASE_NAME=your database
+DATABASE_PASSWORD=your password
 CHUNK_SIZE=512
 ```
 
