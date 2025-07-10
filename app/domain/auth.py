@@ -19,7 +19,7 @@ class Session(BaseModel):
 
 class LoginResponse(BaseResponse):
     session: Optional[Session] = None
-    dashboard: Optional[str] = None  # 'business' or 'user'
+    dashboard: Optional[str] = None  
 
 
 class LogoutResponse(BaseResponse):
