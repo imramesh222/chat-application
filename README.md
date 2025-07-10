@@ -16,6 +16,18 @@ A real-time chat backend built with **FastAPI**, **SQLAlchemy**, **PostgreSQL**,
 
 ---
 
+## Admin & Analytics Features
+
+- **Admin Dashboard**: Web-based admin dashboard at `/admin` using SQLAdmin. Manage users, rooms, and messages with a modern UI.
+- **RBAC Protection**: Only users with `role="admin"` can access the admin dashboard.
+- **Admin Login**: Login to the dashboard with your admin email and password.
+- **Analytics Endpoints**: 
+  - `/admin/analytics/messages-per-room`: Get message counts per room (with optional date filters).
+  - `/admin/analytics/user-activity`: Get message counts per user (with optional date filters).
+- **CSV Export**: Add `?format=csv` to analytics endpoints to download results as CSV files for use in Excel, Google Sheets, etc.
+
+---
+
 ## Setup Instructions
 
 ### 1. Clone the Repository
@@ -34,6 +46,10 @@ source venv/bin/activate
 ```bash
 pip install -r requirements.txt
 ```
+
+**Note:** The following dependencies are required for admin and analytics features:
+- `sqladmin`
+- `itsdangerous`
 
 ### 4. Configure Environment Variables
 Create a `.env` file in the project root:
